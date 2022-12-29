@@ -1,0 +1,23 @@
+{
+  "properties": [
+    {
+      "name": "open-api.contract.base-url",
+      "type": "java.lang.String",
+      "description": "Description for open-api.contract.base-url."
+    },
+    {
+      "name": "open-api.contract.base-url-with-port",
+      "type": "java.lang.String",
+      "description": "Description for open-api.contract.base-url-with-port."
+    },
+    {
+      "name": "open-api.contract.base-uri",
+      "type": "java.lang.String",
+      "description": "Description for open-api.contract.base-uri."
+    },
+    {
+      "name": "open-api.contract.service-key",
+      "type": "java.lang.String",
+      "description": "Description for open-api.contract.service-key."
+    }
+  ] }
