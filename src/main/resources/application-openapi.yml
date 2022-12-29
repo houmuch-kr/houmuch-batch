@@ -1,0 +1,6 @@
+open-api:
+  contract:
+    base-url: http://openapi.molit.go.kr
+    base-url-with-port: http://openapi.molit.go.kr:8081
+    base-uri: OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc
+    service-key: ${HM_OPEN_API_KEY}

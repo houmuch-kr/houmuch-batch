@@ -1,4 +1,14 @@
 spring:
+  profiles:
+    include:
+      - openapi
+  main:
+    web-application-type: none
   batch:
     job:
-      name: ${job.name:NONE}
+      names: ${job.name:NONE}
+  datasource:
+    url: ${HM_DB_URL}
+    username: ${HM_DB_USERNAME}
+    password: ${HM_DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
