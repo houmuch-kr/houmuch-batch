@@ -12,11 +12,11 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.CompletableFuture
 
 @Service
-class ApartmentTradeFetchService(
+class ApartmentContractFetchService(
     private val contractApiClient: ContractApiClient,
     private val threadPoolTaskExecutor: ThreadPoolTaskExecutor
 ) {
-    private val log = logger<ApartmentTradeFetchService>()
+    private val log = logger<ApartmentContractFetchService>()
 
     fun fetchAsync(regionCode: Long, yearMonth: Int): List<BaseApartmentContract>? = CompletableFuture
         .allOf()

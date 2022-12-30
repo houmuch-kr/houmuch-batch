@@ -1,7 +1,7 @@
 package kr.co.houmuch.batch.job.contract
 
 import kr.co.houmuch.batch.logger
-import kr.co.houmuch.batch.service.contract.ApartmentTradeFetchService
+import kr.co.houmuch.batch.service.contract.ApartmentContractFetchService
 import kr.co.houmuch.core.domain.code.AreaCodeJpaRepository
 import kr.co.houmuch.core.domain.code.AreaCodeJpo
 import kr.co.houmuch.core.domain.contract.ContractDetailJpo
@@ -27,7 +27,7 @@ class ApartmentContractJobConfig(
     private val jobBuilderFactory: JobBuilderFactory,
     private val stepBuilderFactory: StepBuilderFactory,
     private val areaCodeJpaRepository: AreaCodeJpaRepository,
-    private val apartmentTradeFetchService: ApartmentTradeFetchService,
+    private val apartmentContractFetchService: ApartmentContractFetchService,
     private val entityManagerFactory: EntityManagerFactory,
 ) {
     val log = logger<ApartmentContractJobConfig>()
@@ -83,7 +83,7 @@ class ApartmentContractJobConfig(
     @StepScope
     @Bean(name = ["${JOB_NAME}Processor"])
     fun processor(@Value("#{jobParameters[yearMonth]}") yearMonth: String): FunctionItemProcessor<AreaCodeJpo, List<ContractJpo>> = FunctionItemProcessor { areaCode ->
-        val tradeList = apartmentTradeFetchService.fetchTrade(areaCode.getIdBy(0, 5), yearMonth.toInt())
+        val tradeList = apartmentContractFetchService.fetchTrade(areaCode.getIdBy(0, 5), yearMonth.toInt())
         if (tradeList!!.isEmpty()) {
             log.info("결과 없음 --> 지역코드 : {} {}", areaCode.getIdBy(0, 5), areaCode.address)
         }
