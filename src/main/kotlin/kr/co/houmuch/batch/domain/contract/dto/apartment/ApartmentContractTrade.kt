@@ -1,5 +1,6 @@
 package kr.co.houmuch.batch.domain.contract.dto.apartment
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kr.co.houmuch.batch.config.convert.NumberCommaParseDeserializer
@@ -26,6 +27,7 @@ import kr.co.houmuch.core.domain.contract.ContractType
     <해제여부> </해제여부>
 </item>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ApartmentContractTrade(
     @JsonDeserialize(using = NumberCommaParseDeserializer::class)
     @JsonProperty("거래금액")

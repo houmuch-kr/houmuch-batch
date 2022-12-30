@@ -1,5 +1,6 @@
 package kr.co.houmuch.batch.domain.contract.dto.apartment
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kr.co.houmuch.batch.config.convert.NumberCommaParseDeserializer
@@ -27,6 +28,7 @@ import kr.co.houmuch.core.domain.contract.ContractType
     <층>7</층>
 </item>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ApartmentContractRent(
     @JsonProperty("갱신요구권사용")
     val useRefreshClaim: String?,
