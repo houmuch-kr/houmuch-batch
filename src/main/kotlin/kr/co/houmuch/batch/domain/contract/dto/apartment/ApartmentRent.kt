@@ -46,7 +46,7 @@ data class ApartmentRent(
 
     @JsonDeserialize(using = NumberCommaParseDeserializer::class)
     @JsonProperty("보증금액")
-    val deposit: Int?,
+    val price: Int?,
 
     @JsonProperty("아파트")
     var name: String?,
@@ -59,7 +59,7 @@ data class ApartmentRent(
     var squareMeter: Double?,
 
     @JsonProperty("종전계약보증금")
-    val previousDeposit: String?,
+    val previousPrice: String?,
 
     @JsonProperty("종전계약월세")
     val previousMonthlyPrice: String?,
