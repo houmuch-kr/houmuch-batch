@@ -1,4 +1,6 @@
 package kr.co.houmuch.batch.domain.contract.dto
 
-abstract class BaseContract {
+import kr.co.houmuch.core.domain.JsonSerializable
+
+abstract class BaseContract : JsonSerializable {
 }
