@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kr.co.houmuch.batch.config.convert.NumberCommaParseDeserializer
 import kr.co.houmuch.batch.config.convert.StringTrimDeserializer
-import kr.co.houmuch.batch.domain.contract.dto.ContractDate
 import kr.co.houmuch.batch.domain.contract.dto.LegalAddress
 import kr.co.houmuch.batch.domain.contract.dto.RoadAddress
 import kr.co.houmuch.core.domain.JsonSerializable
@@ -87,7 +86,4 @@ data class ApartmentContractTradeDetail(
 
     @JsonUnwrapped
     lateinit var legalAddress: LegalAddress
-
-    @JsonUnwrapped
-    lateinit var contractedAt: ContractDate
 }

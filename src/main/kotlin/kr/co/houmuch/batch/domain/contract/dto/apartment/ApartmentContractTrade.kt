@@ -66,7 +66,4 @@ data class ApartmentContractTrade(
     @JsonProperty("해제여부")
     var release: String?,
 
-) : BaseApartmentContract(), JsonSerializable {
-    @JsonUnwrapped
-    lateinit var contractedAt: ContractDate
-}
+) : BaseApartmentContract(), JsonSerializable
