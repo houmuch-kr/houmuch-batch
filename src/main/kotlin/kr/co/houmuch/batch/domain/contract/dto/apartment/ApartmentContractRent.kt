@@ -1,11 +1,10 @@
 package kr.co.houmuch.batch.domain.contract.dto.apartment
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonUnwrapped
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kr.co.houmuch.batch.config.convert.NumberCommaParseDeserializer
-import kr.co.houmuch.batch.domain.contract.dto.ContractDate
 import kr.co.houmuch.core.domain.JsonSerializable
+import kr.co.houmuch.core.domain.contract.ContractType
 
 /*
 <item>
@@ -33,7 +32,7 @@ data class ApartmentContractRent(
     val useRefreshClaim: String?,
 
     @JsonProperty("건축년도")
-    var builtYear: Int?,
+    val builtYear: Int?,
 
     @JsonProperty("계약구분")
     val type: String?,
@@ -73,4 +72,4 @@ data class ApartmentContractRent(
     @JsonProperty("층")
     val floor: Int?,
 
-) : BaseApartmentContract(), JsonSerializable
+) : BaseApartmentContract(ContractType.RENT), JsonSerializable

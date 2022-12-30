@@ -8,6 +8,7 @@ import kr.co.houmuch.batch.config.convert.StringTrimDeserializer
 import kr.co.houmuch.batch.domain.contract.dto.LegalAddress
 import kr.co.houmuch.batch.domain.contract.dto.RoadAddress
 import kr.co.houmuch.core.domain.JsonSerializable
+import kr.co.houmuch.core.domain.contract.ContractType
 
 /*
 <item>
@@ -80,7 +81,7 @@ data class ApartmentContractTradeDetail(
     @JsonProperty("해제여부")
     val release: String?,
 
-) : BaseApartmentContract(), JsonSerializable {
+) : BaseApartmentContract(ContractType.TRADE), JsonSerializable {
     @JsonUnwrapped
     lateinit var roadAddress: RoadAddress
 

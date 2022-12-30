@@ -1,12 +1,11 @@
 package kr.co.houmuch.batch.domain.contract.dto.apartment
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.annotation.JsonUnwrapped
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import kr.co.houmuch.batch.config.convert.NumberCommaParseDeserializer
 import kr.co.houmuch.batch.config.convert.StringTrimDeserializer
-import kr.co.houmuch.batch.domain.contract.dto.ContractDate
 import kr.co.houmuch.core.domain.JsonSerializable
+import kr.co.houmuch.core.domain.contract.ContractType
 
 /*
 <item>
@@ -66,4 +65,4 @@ data class ApartmentContractTrade(
     @JsonProperty("해제여부")
     var release: String?,
 
-) : BaseApartmentContract(), JsonSerializable
+) : BaseApartmentContract(ContractType.TRADE), JsonSerializable
