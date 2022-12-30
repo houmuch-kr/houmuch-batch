@@ -5,19 +5,21 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
 
 
 @Configuration
 class ContractWebClientConfig(
-    private val contractOpenApiProperties: ContractOpenApiProperties
+    private val contractOpenApiProperties: ContractOpenApiProperties,
 ) {
     @Bean
     fun contractWebClient(): WebClient {
         return WebClient.builder()
             .uriBuilderFactory(defaultUriBuilderFactory(contractOpenApiProperties.getBaseFull()))
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+            .exchangeStrategies(defaultExchangeStrategies())
             .build()
     }
 
@@ -26,8 +28,16 @@ class ContractWebClientConfig(
         return WebClient.builder()
             .uriBuilderFactory(defaultUriBuilderFactory(contractOpenApiProperties.getBaseFullWithPort()))
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+            .exchangeStrategies(defaultExchangeStrategies())
             .build()
     }
+
+    private fun defaultExchangeStrategies(): ExchangeStrategies = ExchangeStrategies.builder()
+        .codecs { it
+            .defaultCodecs()
+            .maxInMemorySize(-1)
+        }
+        .build()
 
     private fun defaultUriBuilderFactory(baseUrl: String): DefaultUriBuilderFactory {
         val factory = DefaultUriBuilderFactory(baseUrl)
