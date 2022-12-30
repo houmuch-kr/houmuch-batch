@@ -83,7 +83,7 @@ class ApartmentContractJobConfig(
     @StepScope
     @Bean(name = ["${JOB_NAME}Processor"])
     fun processor(@Value("#{jobParameters[yearMonth]}") yearMonth: String): FunctionItemProcessor<AreaCodeJpo, List<ContractJpo>> = FunctionItemProcessor { areaCode ->
-        val tradeList = apartmentTradeFetchService.fetch(areaCode.getIdBy(0, 5), yearMonth.toInt())
+        val tradeList = apartmentTradeFetchService.fetchTrade(areaCode.getIdBy(0, 5), yearMonth.toInt())
         if (tradeList!!.isEmpty()) {
             log.info("결과 없음 --> 지역코드 : {} {}", areaCode.getIdBy(0, 5), areaCode.address)
         }
