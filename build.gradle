@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'kr.co.houmuch:core:1.0.0'
+    runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.86.Final:osx-aarch_64'
 }
 
 tasks.withType(KotlinCompile) {
