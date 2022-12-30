@@ -3,9 +3,9 @@ package kr.co.houmuch.batch.client
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import kr.co.houmuch.batch.config.properties.ContractOpenApiProperties
-import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentRent
-import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentTrade
-import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentTradeDetail
+import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentContractRent
+import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentContractTrade
+import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentContractTradeDetail
 import kr.co.houmuch.batch.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -25,14 +25,14 @@ class ContractApiClient(
     /**
      * 아파트 매매 목록 조회
      */
-    fun fetchApartmentTrade(regionCode: Int, yearMonth: Int): Mono<List<ApartmentTrade>> {
+    fun fetchApartmentTrade(regionCode: Int, yearMonth: Int): Mono<List<ApartmentContractTrade>> {
         return contractWebClientWithPort.get()
             .uri { createUriBuilder(it.path("/getRTMSDataSvcAptTrade"), regionCode, yearMonth).build() }
             .retrieve()
             .bodyToMono(String::class.java)
             .map { xmlMapper.readTree(it).findPath("item") }
             .doOnNext { if (log.isDebugEnabled) println(it) }
-            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentTrade>>() {}) }
+            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentContractTrade>>() {}) }
             .doOnError { it.printStackTrace() }
             .onErrorReturn(emptyList())
     }
@@ -40,14 +40,14 @@ class ContractApiClient(
     /**
      * 아파트 매매 상세 조회
      */
-    fun fetchApartmentTradeDetail(regionCode: Int, yearMonth: Int): Mono<List<ApartmentTradeDetail>> {
+    fun fetchApartmentTradeDetail(regionCode: Int, yearMonth: Int): Mono<List<ApartmentContractTradeDetail>> {
         return contractWebClient.get()
             .uri { createUriBuilder(it.path("/getRTMSDataSvcAptTradeDev"), regionCode, yearMonth).build() }
             .retrieve()
             .bodyToMono(String::class.java)
             .map { xmlMapper.readTree(it).findPath("item") }
             .doOnNext { if (log.isDebugEnabled) println(it) }
-            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentTradeDetail>>() {}) }
+            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentContractTradeDetail>>() {}) }
             .doOnError { it.printStackTrace() }
             .onErrorReturn(emptyList())
     }
@@ -55,14 +55,14 @@ class ContractApiClient(
     /**
      * 아파트 전/월세 목록 조회
      */
-    fun fetchApartmentRent(regionCode: Int, yearMonth: Int): Mono<List<ApartmentRent>> {
+    fun fetchApartmentRent(regionCode: Int, yearMonth: Int): Mono<List<ApartmentContractRent>> {
         return contractWebClientWithPort.get()
             .uri { createUriBuilder(it.path("/getRTMSDataSvcAptRent"), regionCode, yearMonth).build() }
             .retrieve()
             .bodyToMono(String::class.java)
             .map { xmlMapper.readTree(it).findPath("item") }
             .doOnNext { if (log.isDebugEnabled) println(it) }
-            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentRent>>() {}) }
+            .map { objectMapper.convertValue(it, object: TypeReference<List<ApartmentContractRent>>() {}) }
             .doOnError { it.printStackTrace() }
             .onErrorReturn(emptyList())
     }

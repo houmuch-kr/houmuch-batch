@@ -28,7 +28,7 @@ import kr.co.houmuch.core.domain.JsonSerializable
     <층>7</층>
 </item>
  */
-data class ApartmentRent(
+data class ApartmentContractRent(
     @JsonProperty("갱신요구권사용")
     val useRefreshClaim: String?,
 
