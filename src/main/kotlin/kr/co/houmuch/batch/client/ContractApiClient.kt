@@ -6,7 +6,6 @@ import kr.co.houmuch.batch.config.properties.ContractOpenApiProperties
 import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentRent
 import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentTrade
 import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentTradeDetail
-import kr.co.houmuch.batch.job.contract.ApartmentTradeJobConfig
 import kr.co.houmuch.batch.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -21,7 +20,7 @@ class ContractApiClient(
     private val xmlMapper: ObjectMapper,
     private val objectMapper: ObjectMapper
 ) {
-    val log = logger<ApartmentTradeJobConfig>()
+    val log = logger<ContractApiClient>()
 
     /**
      * 아파트 매매 목록 조회

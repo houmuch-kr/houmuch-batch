@@ -4,6 +4,7 @@ import kr.co.houmuch.batch.logger
 import kr.co.houmuch.batch.service.contract.ApartmentTradeFetchService
 import kr.co.houmuch.core.domain.code.AreaCodeJpaRepository
 import kr.co.houmuch.core.domain.code.AreaCodeJpo
+import kr.co.houmuch.core.domain.contract.ContractDetailJpo
 import kr.co.houmuch.core.domain.contract.ContractJpo
 import kr.co.houmuch.core.util.RandomGenerator
 import org.springframework.batch.core.Job
@@ -22,17 +23,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import javax.persistence.EntityManagerFactory
 
 @Configuration
-class ApartmentTradeJobConfig(
+class ApartmentContractJobConfig(
     private val jobBuilderFactory: JobBuilderFactory,
     private val stepBuilderFactory: StepBuilderFactory,
     private val areaCodeJpaRepository: AreaCodeJpaRepository,
     private val apartmentTradeFetchService: ApartmentTradeFetchService,
     private val entityManagerFactory: EntityManagerFactory,
 ) {
-    val log = logger<ApartmentTradeJobConfig>()
+    val log = logger<ApartmentContractJobConfig>()
 
     companion object {
-        const val JOB_NAME = "apartmentTradeJob"
+        const val JOB_NAME = "apartmentContractJob"
         const val CHUNK_SIZE = 10
     }
 
@@ -92,9 +93,14 @@ class ApartmentTradeJobConfig(
                 .type("TRADE")
                 .buildingType("APARTMENT")
                 .areaCode(areaCode)
-                .builtAt(it.builtYear)
                 .contractedAt(it.contractedAt.asLocalDate())
                 .name(it.name)
+                .detail(ContractDetailJpo.builder()
+                    .price(it.price)
+                    .squareMeter(it.squareMeter)
+                    .builtAt(it.builtYear)
+                    .floor(it.floor)
+                    .build())
                 .build()
         }.toList()
     }
