@@ -5,20 +5,20 @@ import kr.co.houmuch.core.domain.JsonSerializable
 
 data class LegalAddress(
     @JsonProperty("도로명")
-    val name: String,
+    val name: String?,
 
     @JsonProperty("법정동본번코드")
-    val buildingMainNumberCode: String,
+    val buildingMainNumberCode: String?,
 
     @JsonProperty("법정동부번코드")
-    val buildingSubNumberCode: String,
+    val buildingSubNumberCode: String?,
 
     @JsonProperty("법정동시군구코드")
-    val sggCode: String,
+    val sggCode: String?,
 
     @JsonProperty("법정동읍면동코드")
-    val umdCode: String,
+    val umdCode: String?,
 
     @JsonProperty("법정동지번코드")
-    val code: String,
+    val code: String?,
 ) : JsonSerializable
