@@ -81,7 +81,7 @@ data class ApartmentContractTradeDetail(
     @JsonProperty("해제여부")
     val release: String?,
 
-) : JsonSerializable {
+) : BaseApartmentContract(), JsonSerializable {
     @JsonUnwrapped
     lateinit var roadAddress: RoadAddress
 

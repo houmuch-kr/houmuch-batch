@@ -73,7 +73,7 @@ data class ApartmentContractRent(
     @JsonProperty("층")
     val floor: Int?,
 
-) : JsonSerializable {
+) : BaseApartmentContract(), JsonSerializable {
     @JsonUnwrapped
     lateinit var contractedAt: ContractDate
 }
