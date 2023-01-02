@@ -13,7 +13,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory
 @Configuration
 class ContractWebClientConfig(
     private val contractOpenApiProperties: ContractOpenApiProperties,
-) {
+) : WebClientConfigHelper() {
     @Bean
     fun contractWebClient(): WebClient {
         return WebClient.builder()
@@ -31,13 +31,6 @@ class ContractWebClientConfig(
             .exchangeStrategies(defaultExchangeStrategies())
             .build()
     }
-
-    private fun defaultExchangeStrategies(): ExchangeStrategies = ExchangeStrategies.builder()
-        .codecs { it
-            .defaultCodecs()
-            .maxInMemorySize(-1)
-        }
-        .build()
 
     private fun defaultUriBuilderFactory(baseUrl: String): DefaultUriBuilderFactory {
         val factory = DefaultUriBuilderFactory(baseUrl)
