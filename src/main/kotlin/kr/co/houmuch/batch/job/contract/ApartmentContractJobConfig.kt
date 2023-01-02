@@ -1,26 +1,28 @@
 package kr.co.houmuch.batch.job.contract
 
+import kr.co.houmuch.batch.job.contract.mapper.ApartmentContractModelMapper
 import kr.co.houmuch.batch.logger
 import kr.co.houmuch.batch.service.contract.ApartmentContractFetchService
 import kr.co.houmuch.core.domain.code.AreaCodeJpaRepository
 import kr.co.houmuch.core.domain.code.AreaCodeJpo
+import kr.co.houmuch.core.domain.contract.ContractAdditionalJpo
 import kr.co.houmuch.core.domain.contract.ContractDetailJpo
 import kr.co.houmuch.core.domain.contract.ContractJpo
-import kr.co.houmuch.core.util.RandomGenerator
-import org.springframework.batch.core.Job
-import org.springframework.batch.core.Step
+import org.springframework.batch.core.*
 import org.springframework.batch.core.configuration.annotation.*
 import org.springframework.batch.item.ItemReader
 import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder
+import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder
 import org.springframework.batch.item.function.FunctionItemProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.Sort
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
-import javax.persistence.EntityManagerFactory
+import java.time.format.DateTimeFormatter
+import javax.sql.DataSource
 
 @Configuration
 class ApartmentContractJobConfig(
@@ -28,25 +30,14 @@ class ApartmentContractJobConfig(
     private val stepBuilderFactory: StepBuilderFactory,
     private val areaCodeJpaRepository: AreaCodeJpaRepository,
     private val apartmentContractFetchService: ApartmentContractFetchService,
-    private val entityManagerFactory: EntityManagerFactory,
+    private val dataSource: DataSource,
+    private val batchThreadPoolTaskExecutor: ThreadPoolTaskExecutor,
 ) {
     val log = logger<ApartmentContractJobConfig>()
 
     companion object {
         const val JOB_NAME = "apartmentContractJob"
-        const val CHUNK_SIZE = 10
-    }
-
-    @StepScope
-    @Bean(name = ["${JOB_NAME}Executor"])
-    fun threadPoolTaskExecutor(): ThreadPoolTaskExecutor {
-        val threadPoolTaskExecutor = ThreadPoolTaskExecutor() // (2)
-        threadPoolTaskExecutor.corePoolSize = 10
-        threadPoolTaskExecutor.maxPoolSize = 10
-        threadPoolTaskExecutor.setThreadNamePrefix("multi-thread-")
-        threadPoolTaskExecutor.setWaitForTasksToCompleteOnShutdown(true)
-        threadPoolTaskExecutor.initialize()
-        return threadPoolTaskExecutor
+        const val CHUNK_SIZE = 1
     }
 
     @Bean(name = [JOB_NAME])
@@ -64,7 +55,7 @@ class ApartmentContractJobConfig(
             .reader(reader())
             .processor(processor)
             .writer(writer())
-            .taskExecutor(threadPoolTaskExecutor())
+            .taskExecutor(batchThreadPoolTaskExecutor)
             .build()
     }
 
@@ -82,40 +73,54 @@ class ApartmentContractJobConfig(
 
     @StepScope
     @Bean(name = ["${JOB_NAME}Processor"])
-    fun processor(@Value("#{jobParameters[yearMonth]}") yearMonth: String): FunctionItemProcessor<AreaCodeJpo, List<ContractJpo>> = FunctionItemProcessor { areaCode ->
-        val tradeList = apartmentContractFetchService.fetchTrade(areaCode.getIdBy(0, 5), yearMonth.toInt())
-        if (tradeList!!.isEmpty()) {
-            log.info("결과 없음 --> 지역코드 : {} {}", areaCode.getIdBy(0, 5), areaCode.address)
+    fun processor(@Value("#{jobParameters[yearMonth]}") yearMonth: String):
+            FunctionItemProcessor<AreaCodeJpo, List<ContractJpo>> =
+        FunctionItemProcessor { areaCode ->
+            val tradeList = apartmentContractFetchService.fetchAsync(areaCode.getIdBy(0, 5), yearMonth.toInt())
+            if (tradeList!!.isEmpty()) {
+                log.info("결과 없음 --> 지역코드 : {} {}", areaCode.getIdBy(0, 5), areaCode.address)
+            }
+            tradeList.map { ApartmentContractModelMapper.mapping(it, areaCode) }
         }
-        tradeList.map {
-            ContractJpo.builder()
-                .id(RandomGenerator.generatorLong(10))
-                .type("TRADE")
-                .buildingType("APARTMENT")
-                .areaCode(areaCode)
-                .contractedAt(it.contractedAt.asLocalDate())
-                .name(it.name)
-                .detail(ContractDetailJpo.builder()
-                    .price(it.price)
-                    .squareMeter(it.squareMeter)
-                    .builtAt(it.builtYear)
-                    .floor(it.floor)
-                    .build())
-                .build()
-        }.toList()
-    }
 
     @StepScope
     @Bean(name = ["${JOB_NAME}Writer"])
     fun writer(): ItemWriter<List<ContractJpo>> {
         return ItemWriter { lists ->
-            val builder = JpaItemWriterBuilder<ContractJpo>()
-                .entityManagerFactory(entityManagerFactory)
+            val contractList = lists.flatMap { it.stream().toList() }
+                val contractWriter = JdbcBatchItemWriterBuilder<ContractJpo>()
+                .sql("INSERT INTO contract (id, type, building_type, area_code, contracted_at, serial_number, name) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)")
+                .itemPreparedStatementSetter { item, ps ->
+                    ps.setLong(1, item.id)
+                    ps.setString(2, item.type.name)
+                    ps.setString(3, item.buildingType.name)
+                    ps.setLong(4, item.areaCode.id)
+                    ps.setString(5, item.contractedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    ps.setString(6, item.serialNumber)
+                    ps.setString(7, item.name)
+                }
+                .itemSqlParameterSourceProvider(BeanPropertyItemSqlParameterSourceProvider())
+                .dataSource(dataSource)
                 .build()
-            val list = lists.stream()
-                .flatMap { it.stream() }
-                .toList()
-            builder.write(list)
+            val contractDetailWriter = JdbcBatchItemWriterBuilder<ContractDetailJpo>()
+                .sql("INSERT INTO contract_detail (id, price, monthly_price, floor, address_detail, square_meter, built_at) " +
+                        "VALUES (:id, :price, :monthlyPrice, :floor, :addressDetail, :squareMeter, :builtAt)")
+                .beanMapped()
+                .dataSource(dataSource)
+                .build()
+            contractDetailWriter.afterPropertiesSet()
+            val contractAdditionalWriter = JdbcBatchItemWriterBuilder<ContractAdditionalJpo>()
+                .sql("INSERT INTO contract_additional " +
+                        "(id, contract_type, term, use_refresh_claim, previous_price, previous_monthly_price, release_at, `release`) " +
+                        "VALUES (:id, :contractType, :term, :useRefreshClaim, :previousPrice, :previousMonthlyPrice, :releaseAt, :release)")
+                .beanMapped()
+                .dataSource(dataSource)
+                .build()
+            contractAdditionalWriter.afterPropertiesSet()
+            contractWriter.write(contractList)
+            contractDetailWriter.write(contractList.map { it.detail })
+            contractAdditionalWriter.write(contractList.map { it.additional })
         }
     }
 }
