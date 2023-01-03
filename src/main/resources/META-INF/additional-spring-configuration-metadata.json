@@ -19,5 +19,10 @@
       "name": "open-api.contract.service-key",
       "type": "java.lang.String",
       "description": "Description for open-api.contract.service-key."
+    },
+    {
+      "name": "slack.webhook-url",
+      "type": "java.lang.String",
+      "description": "Description for slack.webhook-url."
     }
   ] }
