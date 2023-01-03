@@ -3,14 +3,11 @@ package kr.co.houmuch.batch.job
 import kr.co.houmuch.batch.logger
 import org.springframework.batch.core.JobExecution
 import org.springframework.batch.core.JobExecutionListener
-import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
-@Component
-class DelegatingJobExecutionListener(
+open class DelegatingJobExecutionListener : JobExecutionListener {
+    private val log = logger<DelegatingJobExecutionListener>()
     private val listeners: MutableList<JobExecutionListener> = mutableListOf()
-) : JobExecutionListener {
-    val log = logger<DelegatingJobExecutionListener>()
 
     @PostConstruct
     fun postConstruct() {
@@ -21,19 +18,19 @@ class DelegatingJobExecutionListener(
         this.listeners.add(listener)
     }
 
-    fun setListeners(listeners: Array<JobExecutionListener>) {
+    fun setListeners(listeners: List<JobExecutionListener>) {
         this.listeners.addAll(listeners)
     }
 
     override fun beforeJob(jobExecution: JobExecution) {
-        listeners.forEach {
+        listeners.filter { it != this }.forEach {
             it.beforeJob(jobExecution)
             log.debug("${it.javaClass.name} beforeJob 실행됨")
         }
     }
 
     override fun afterJob(jobExecution: JobExecution) {
-        listeners.forEach {
+        listeners.filter { it != this }.forEach {
             it.afterJob(jobExecution)
             log.debug("${it.javaClass.name} afterJob 실행됨")
         }
