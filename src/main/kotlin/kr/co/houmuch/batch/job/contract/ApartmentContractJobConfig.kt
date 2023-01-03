@@ -1,5 +1,6 @@
 package kr.co.houmuch.batch.job.contract
 
+import kr.co.houmuch.batch.job.DelegatingJobExecutionListener
 import kr.co.houmuch.batch.job.contract.mapper.ApartmentContractModelMapper
 import kr.co.houmuch.batch.logger
 import kr.co.houmuch.batch.service.contract.ApartmentContractFetchService
@@ -32,6 +33,7 @@ class ApartmentContractJobConfig(
     private val apartmentContractFetchService: ApartmentContractFetchService,
     private val dataSource: DataSource,
     private val batchThreadPoolTaskExecutor: ThreadPoolTaskExecutor,
+    private val delegatingJobExecutionListener: DelegatingJobExecutionListener
 ) {
     val log = logger<ApartmentContractJobConfig>()
 
@@ -44,6 +46,7 @@ class ApartmentContractJobConfig(
     fun job(step: Step): Job {
         return jobBuilderFactory.get(JOB_NAME)
             .start(step)
+            .listener(delegatingJobExecutionListener)
             .build()
     }
 
