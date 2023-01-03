@@ -14,7 +14,7 @@ class SlackWebhookClientConfig(
     @Bean(name = ["slackWebhookWebClient"])
     fun webClient(): WebClient {
         return WebClient.builder()
-            .baseUrl(slackWebhookProperties.url)
+            .baseUrl(slackWebhookProperties.getBaseFullUrl())
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .exchangeStrategies(defaultExchangeStrategies())
             .build()

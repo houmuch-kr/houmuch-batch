@@ -24,5 +24,10 @@
       "name": "slack.webhook-url",
       "type": "java.lang.String",
       "description": "Description for slack.webhook-url."
+    },
+    {
+      "name": "slack.webhook.token",
+      "type": "java.lang.String",
+      "description": "Description for slack.webhook.token."
     }
   ] }

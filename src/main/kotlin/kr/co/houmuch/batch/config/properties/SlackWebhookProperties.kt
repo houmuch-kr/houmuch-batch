@@ -6,5 +6,10 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties("slack.webhook")
 @ConstructorBinding
 class SlackWebhookProperties(
-    val url: String
-)
+    private val baseUrl: String,
+    private val token: String
+) {
+    fun getBaseFullUrl(): String {
+        return "${baseUrl}/${token}"
+    }
+}
