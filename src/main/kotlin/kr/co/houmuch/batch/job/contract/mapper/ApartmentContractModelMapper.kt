@@ -11,28 +11,29 @@ import kr.co.houmuch.core.util.RandomGenerator
 
 class ApartmentContractModelMapper {
     companion object {
-        fun mapping(contract: BaseApartmentContract, areaCode: AreaCodeJpo): ContractJpo {
+        fun mapping(contract: BaseApartmentContract, areaCode: AreaCodeJpo, childrenAreaCode: List<AreaCodeJpo>): ContractJpo {
             val contractJpo: ContractJpo = ContractJpo.builder()
-                .id(RandomGenerator.generatorLong(10))
+                .id(RandomGenerator.generator(10))
                 .type(contract.contractType)
                 .buildingType(contract.buildingType)
-                .areaCode(areaCode)
                 .contractedAt(contract.contractedAt.asLocalDate())
                 .build()
-            mapping(contract, contractJpo)
+            mapping(contract, contractJpo, childrenAreaCode)
             return contractJpo
         }
 
-        private fun mapping(contract: BaseApartmentContract, contractJpo: ContractJpo) {
+        private fun mapping(contract: BaseApartmentContract, contractJpo: ContractJpo, childrenAreaCode: List<AreaCodeJpo>) {
             when (contract) {
-                is ApartmentContractRent -> mappingRent(contractJpo, contract)
-                is ApartmentContractTradeDetail -> mappingTradeDetail(contractJpo, contract)
+                is ApartmentContractRent -> mappingRent(contractJpo, contract, childrenAreaCode)
+                is ApartmentContractTradeDetail -> mappingTradeDetail(contractJpo, contract, childrenAreaCode)
             }
         }
 
-        private fun mappingTradeDetail(contractJpo: ContractJpo, contract: ApartmentContractTradeDetail) {
+        private fun mappingTradeDetail(contractJpo: ContractJpo, contract: ApartmentContractTradeDetail, childrenAreaCode: List<AreaCodeJpo>) {
+            val areaCode = "${contract.legalAddress.sggCode}${contract.legalAddress.umdCode}".toLong()
             contractJpo.serialNumber = contract.serialNumber
             contractJpo.name = contract.name
+            contractJpo.areaCode = childrenAreaCode.findLast { areaCodeJpo -> areaCodeJpo.id.equals(areaCode) }
             contractJpo.detail = ContractDetailJpo.builder()
                 .id(contractJpo.id)
                 .price(contract.price)
@@ -49,7 +50,8 @@ class ApartmentContractModelMapper {
                 .build()
         }
 
-        private fun mappingRent(contractJpo: ContractJpo, contract: ApartmentContractRent) {
+        private fun mappingRent(contractJpo: ContractJpo, contract: ApartmentContractRent, childrenAreaCode: List<AreaCodeJpo>) {
+            contractJpo.areaCode = childrenAreaCode.findLast { areaCodeJpo -> areaCodeJpo.address.contains(contract.dong!!) }
             contractJpo.name = contract.name
             contractJpo.detail = ContractDetailJpo.builder()
                 .id(contractJpo.id)

@@ -17,9 +17,11 @@ import org.springframework.batch.item.data.builder.RepositoryItemReaderBuilder
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder
 import org.springframework.batch.item.function.FunctionItemProcessor
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.time.format.DateTimeFormatter
@@ -43,7 +45,7 @@ class ApartmentContractJobConfig(
     }
 
     @Bean(name = [JOB_NAME])
-    fun job(step: Step): Job {
+    fun job(@Qualifier("${JOB_NAME}Step") step: Step): Job {
         return jobBuilderFactory.get(JOB_NAME)
             .start(step)
             .listener(delegatingJobExecutionListener)
@@ -79,11 +81,12 @@ class ApartmentContractJobConfig(
     fun processor(@Value("#{jobParameters[yearMonth]}") yearMonth: String):
             FunctionItemProcessor<AreaCodeJpo, List<ContractJpo>> =
         FunctionItemProcessor { areaCode ->
+            val children = areaCodeJpaRepository.findByCodeSidoAndCodeSgg(areaCode.code.sido, areaCode.code.sgg, Pageable.unpaged())
             val tradeList = apartmentContractFetchService.fetchAsync(areaCode.getIdBy(0, 5), yearMonth.toInt())
             if (tradeList!!.isEmpty()) {
                 log.info("결과 없음 --> 지역코드 : {} {}", areaCode.getIdBy(0, 5), areaCode.address)
             }
-            tradeList.map { ApartmentContractModelMapper.mapping(it, areaCode) }
+            tradeList.map { ApartmentContractModelMapper.mapping(it, areaCode, children.content) }
         }
 
     @StepScope
@@ -95,10 +98,14 @@ class ApartmentContractJobConfig(
                 .sql("INSERT INTO contract (id, type, building_type, area_code, contracted_at, serial_number, name) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)")
                 .itemPreparedStatementSetter { item, ps ->
-                    ps.setLong(1, item.id)
+                    ps.setString(1, item.id)
                     ps.setString(2, item.type.name)
                     ps.setString(3, item.buildingType.name)
-                    ps.setLong(4, item.areaCode.id)
+                    if (item.areaCode == null) {
+                        ps.setObject(4, null)
+                    } else {
+                        ps.setLong(4, item.areaCode.id)
+                    }
                     ps.setString(5, item.contractedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     ps.setString(6, item.serialNumber)
                     ps.setString(7, item.name)
