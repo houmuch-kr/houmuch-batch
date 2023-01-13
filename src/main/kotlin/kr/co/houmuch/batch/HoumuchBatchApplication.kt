@@ -1,5 +1,6 @@
 package kr.co.houmuch.batch
 
+import kr.co.houmuch.batch.config.properties.BatchProperties
 import kr.co.houmuch.batch.config.properties.ContractOpenApiProperties
 import kr.co.houmuch.batch.config.properties.SlackWebhookProperties
 import org.slf4j.Logger
@@ -16,7 +17,7 @@ inline fun <reified T> logger(): Logger = LoggerFactory.getLogger(T::class.java)
 @SpringBootApplication(scanBasePackages = [BASE_PACKAGE])
 @EntityScan(basePackages = [BASE_PACKAGE])
 @EnableJpaRepositories(basePackages = [BASE_PACKAGE])
-@EnableConfigurationProperties(ContractOpenApiProperties::class, SlackWebhookProperties::class)
+@EnableConfigurationProperties(ContractOpenApiProperties::class, SlackWebhookProperties::class, BatchProperties::class)
 @EnableBatchProcessing
 class HoumuchBatchApplication
 

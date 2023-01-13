@@ -28,6 +28,7 @@ class SlackJobExecutionListener(
     private fun template(jobName: String, jobParameters: String, status: String, duration: String): String {
         // TODO: Refactor Object
         return """{
+            "text": "$jobName 수행 완료",
             "blocks": [
                 {
                     "type": "section",

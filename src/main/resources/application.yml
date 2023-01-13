@@ -23,3 +23,6 @@ spring:
 logging:
   level:
     kr.co.houmuch: INFO
+
+batch:
+  json-output-directory: ${user.home}/workspace/houmuch/json
