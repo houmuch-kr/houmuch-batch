@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import kr.co.houmuch.core.domain.JsonSerializable
 
 data class LegalAddress(
-    @JsonProperty("도로명")
+    @JsonProperty("법정동")
     val name: String?,
 
     @JsonProperty("법정동본번코드")

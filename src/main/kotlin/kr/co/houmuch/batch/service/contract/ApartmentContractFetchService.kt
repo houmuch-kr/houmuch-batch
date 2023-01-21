@@ -18,6 +18,16 @@ class ApartmentContractFetchService(
 ) {
     private val log = logger<ApartmentContractFetchService>()
 
+    fun fetchAsync(regionCodeList: List<Long>, yearMonth: Int): MutableList<BaseApartmentContract>? {
+        return regionCodeList
+            .map { listOf(fetchTradeAsync(it, yearMonth), fetchRentAsync(it, yearMonth)) }
+            .flatMap { it.stream().toList() }
+            .toList()
+            .stream()
+            .flatMap { it.join().stream() }
+            .toList()
+    }
+
     fun fetchAsync(regionCode: Long, yearMonth: Int): List<BaseApartmentContract>? = CompletableFuture
         .allOf()
         .thenApply {
@@ -44,7 +54,7 @@ class ApartmentContractFetchService(
 
     fun fetchRent(regionCode: Long, yearMonth: Int): List<ApartmentContractRent>? {
         return contractApiClient.fetchApartmentRent(regionCode.toInt(), yearMonth)
-            .doOnSuccess { log.info("아파트 매매 실거래 --> 지역코드 : {}, 조회년월 : {}, {}", regionCode, yearMonth, it.size) }
+            .doOnSuccess { log.info("아파트 전월세 실거래 --> 지역코드 : {}, 조회년월 : {}, {}", regionCode, yearMonth, it.size) }
             .block()
     }
 

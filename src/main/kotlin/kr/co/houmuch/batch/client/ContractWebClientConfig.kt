@@ -5,9 +5,11 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.client.ExchangeStrategies
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
+import reactor.netty.http.client.HttpClient
+import java.time.Duration
 
 
 @Configuration
@@ -17,6 +19,7 @@ class ContractWebClientConfig(
     @Bean
     fun contractWebClient(): WebClient {
         return WebClient.builder()
+            .clientConnector(ReactorClientHttpConnector(httpClient()))
             .uriBuilderFactory(defaultUriBuilderFactory(contractOpenApiProperties.getBaseFull()))
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
             .exchangeStrategies(defaultExchangeStrategies())
@@ -26,10 +29,17 @@ class ContractWebClientConfig(
     @Bean
     fun contractWebClientWithPort(): WebClient {
         return WebClient.builder()
+            .clientConnector(ReactorClientHttpConnector(httpClient()))
             .uriBuilderFactory(defaultUriBuilderFactory(contractOpenApiProperties.getBaseFullWithPort()))
             .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
             .exchangeStrategies(defaultExchangeStrategies())
             .build()
+    }
+
+    private fun httpClient(): HttpClient {
+        return HttpClient.create()
+            .keepAlive(true)
+            .responseTimeout(Duration.ofSeconds(10))
     }
 
     private fun defaultUriBuilderFactory(baseUrl: String): DefaultUriBuilderFactory {

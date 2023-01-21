@@ -8,7 +8,7 @@ import java.io.IOException
 
 class NumberCommaParseDeserializer : JsonDeserializer<Int?>() {
     @Throws(IOException::class, JacksonException::class)
-    override fun deserialize(p: JsonParser, ext: DeserializationContext?): Int? {
+    override fun deserialize(p: JsonParser, ext: DeserializationContext?): Int {
         return p.valueAsString.trim().replace(",", "").toInt()
     }
 }
