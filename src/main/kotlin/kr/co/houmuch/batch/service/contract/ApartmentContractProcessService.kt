@@ -1,11 +1,11 @@
 package kr.co.houmuch.batch.service.contract
 
 import kr.co.houmuch.batch.domain.area.cache.AreaCodeCacheRepository
+import kr.co.houmuch.batch.domain.area.cache.BuildingCacheRepository
 import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentContractRent
 import kr.co.houmuch.batch.domain.contract.dto.apartment.ApartmentContractTradeDetail
 import kr.co.houmuch.batch.domain.contract.dto.apartment.BaseApartmentContract
 import kr.co.houmuch.batch.logger
-import kr.co.houmuch.core.domain.building.jpa.BuildingJpaRepository
 import kr.co.houmuch.core.domain.building.jpa.BuildingJpo
 import kr.co.houmuch.core.domain.code.AreaCodeJpo
 import kr.co.houmuch.core.domain.common.dto.CombinedAreaCode
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @StepScope
 class ApartmentContractProcessService(
     private val areaCodeCacheRepository: AreaCodeCacheRepository,
-    private val buildingJpaRepository: BuildingJpaRepository
+    private val buildingCacheRepository: BuildingCacheRepository
 ) {
     val log = logger<ApartmentContractProcessService>()
 
@@ -47,7 +47,7 @@ class ApartmentContractProcessService(
 
     @Transactional
     fun processBuilding(contract: BaseApartmentContract, areaCode: AreaCodeJpo?): BuildingJpo? {
-        return buildingJpaRepository.findByNameAndTypeAndAreaCode(contract.getOptionalName(), contract.buildingType, areaCode)
+        return buildingCacheRepository.findByNameAndTypeAndAreaCode(contract.getOptionalName(), contract.buildingType, areaCode)
             .orElseGet {
                 log.info("건물정보 찾을 수 없음 --> name : ${contract.getOptionalName()}, type : ${contract.buildingType}, areaCode : $areaCode")
                 null
